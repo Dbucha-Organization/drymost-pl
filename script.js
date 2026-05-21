@@ -280,7 +280,6 @@ const faqPage = {
   script.textContent = JSON.stringify(schema);
   document.head.appendChild(script);
 });
-}
 
 function showAgeGate() {
   ageGate.hidden = false;
