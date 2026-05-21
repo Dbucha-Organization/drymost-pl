@@ -1,3 +1,4 @@
+const productData = JSON.parse(document.getElementById('product-data').textContent);
 const siteHeader = document.querySelector('.site-header');
 const navToggle = document.querySelector('.nav-toggle');
 const navLinks = document.querySelectorAll('.site-nav a');
@@ -98,188 +99,207 @@ faqItems.forEach((item, index) => {
   }
 });
 
+function buildSchemas() {
+  const canonicalBase = window.location.origin === 'null' ? 'https://example.com' : window.location.origin;
+  const canonicalUrl = window.location.pathname.endsWith('/')
+    ? `${canonicalBase}${window.location.pathname}`
+    : `${canonicalBase}${window.location.pathname || '/'}`;
+  const absoluteUrl = (value) => {
+    if (!value) return value;
+    if (/^https?:\/\//.test(value)) return value;
+    return new URL(value, canonicalUrl).href;
+  };
+  const navigationElements = Array.from(document.querySelectorAll('.site-nav a, .footer-nav a'))
+    .map((link) => ({
+      name: link.textContent.trim(),
+      url: absoluteUrl(link.getAttribute('href'))
+    }))
+    .filter((entry, index, items) => entry.name && entry.url && index === items.findIndex((item) => item.name === entry.name && item.url === entry.url));
 
-const organization = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  '@id': `${canonicalUrl}#organization`,
-  name: 'DRYMOST CYBER SNUS',
-  url: canonicalUrl,
-  logo: absoluteUrl('./logo.png'),
-  description: 'Polska strona kolekcji DRYMOST prezentująca saszetki nikotynowe i smaki Storm oraz Armageddon dla dorosłych 18+.'
-};
+  const organization = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${canonicalUrl}#organization`,
+    name: 'DRYMOST CYBER SNUS',
+    url: canonicalUrl,
+    logo: absoluteUrl('./logo.png'),
+    description: 'Polska strona kolekcji DRYMOST prezentująca saszetki nikotynowe i smaki Storm oraz Armageddon dla dorosłych 18+.'
+  };
 
-const website = {
-  '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  '@id': `${canonicalUrl}#website`,
-  name: 'DRYMOST CYBER SNUS',
-  url: canonicalUrl,
-  inLanguage: 'pl-PL',
-  publisher: { '@id': `${canonicalUrl}#organization` }
-};
+  const website = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${canonicalUrl}#website`,
+    name: 'DRYMOST CYBER SNUS',
+    url: canonicalUrl,
+    inLanguage: 'pl-PL',
+    publisher: { '@id': `${canonicalUrl}#organization` }
+  };
 
-const webPage = {
-  '@context': 'https://schema.org',
-  '@type': 'WebPage',
-  '@id': `${canonicalUrl}#webpage`,
-  url: canonicalUrl,
-  name: 'DRYMOST Snusy – Saszetki Nikotynowe',
-  description: 'Strona kolekcji DRYMOST z opisem smaków, FAQ i linkami zakupu dla dorosłych użytkowników 18+.',
-  inLanguage: 'pl-PL',
-  isPartOf: { '@id': `${canonicalUrl}#website` },
-  about: { '@id': `${canonicalUrl}#organization` },
-  keywords: ['DRYMOST', 'snusy', 'saszetki nikotynowe', 'mocne saszetki nikotynowe', 'Storm', 'Armageddon', '18+']
-};
+  const webPage = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${canonicalUrl}#webpage`,
+    url: canonicalUrl,
+    name: 'DRYMOST Snusy – Saszetki Nikotynowe',
+    description: 'Strona kolekcji DRYMOST z opisem smaków, FAQ i linkami zakupu dla dorosłych użytkowników 18+.',
+    inLanguage: 'pl-PL',
+    isPartOf: { '@id': `${canonicalUrl}#website` },
+    about: { '@id': `${canonicalUrl}#organization` },
+    keywords: ['DRYMOST', 'snusy', 'saszetki nikotynowe', 'mocne saszetki nikotynowe', 'Storm', 'Armageddon', '18+']
+  };
 
-const itemListElements = productData.map((product, index) => ({
-  '@type': 'ListItem',
-  position: index + 1,
-  url: product.url,
-  name: product.name
-}));
-
-const collectionPage = {
-  '@context': 'https://schema.org',
-  '@type': 'CollectionPage',
-  '@id': `${canonicalUrl}#collection`,
-  url: canonicalUrl,
-  name: 'DRYMOST Snusy – Saszetki Nikotynowe',
-  description: 'Polska strona kolekcji DRYMOST z ofertą saszetek nikotynowych dla dorosłych 18+.',
-  inLanguage: 'pl-PL',
-  isPartOf: { '@id': `${canonicalUrl}#website` },
-  about: { '@id': `${canonicalUrl}#organization` },
-  mainEntity: { '@id': `${canonicalUrl}#itemlist` },
-  breadcrumb: { '@id': `${canonicalUrl}#breadcrumbs` }
-};
-
-const itemList = {
-  '@context': 'https://schema.org',
-  '@type': 'ItemList',
-  '@id': `${canonicalUrl}#itemlist`,
-  name: 'Produkty DRYMOST',
-  numberOfItems: productData.length,
-  itemListElement: itemListElements
-};
-
-const breadcrumbs = {
-  '@context': 'https://schema.org',
-  '@type': 'BreadcrumbList',
-  '@id': `${canonicalUrl}#breadcrumbs`,
-  itemListElement: [
-    {
-      '@type': 'ListItem',
-      position: 1,
-      name: 'Start',
-      item: canonicalUrl
-    },
-    {
-      '@type': 'ListItem',
-      position: 2,
-      name: 'Produkty DRYMOST',
-      item: `${canonicalUrl}#produkty`
-    },
-    {
-      '@type': 'ListItem',
-      position: 3,
-      name: 'FAQ',
-      item: `${canonicalUrl}#faq`
-    }
-  ]
-};
-
-const siteNavigation = navigationElements.map((item, index) => ({
-  '@context': 'https://schema.org',
-  '@type': 'SiteNavigationElement',
-  '@id': `${canonicalUrl}#navigation-${index + 1}`,
-  name: item.name,
-  url: item.url
-}));
-
-const products = productData.map((product) => ({
-  '@context': 'https://schema.org',
-  '@type': 'Product',
-  name: product.name,
-  image: [absoluteUrl(product.image)],
-  url: product.url,
-  brand: {
-    '@type': 'Brand',
-    name: 'DRYMOST'
-  },
-  category: 'Saszetki nikotynowe',
-  description: `${product.name} to saszetki nikotynowe DRYMOST dla dorosłych użytkowników 18+. Smak: ${product.flavor}. Seria: ${product.series}.`,
-  additionalProperty: [
-    {
-      '@type': 'PropertyValue',
-      name: 'Smak',
-      value: product.flavor
-    },
-    {
-      '@type': 'PropertyValue',
-      name: 'Seria',
-      value: product.series
-    },
-    {
-      '@type': 'PropertyValue',
-      name: 'Moc',
-      value: product.strength
-    }
-  ],
-  aggregateRating: {
-    '@type': 'AggregateRating',
-    ratingValue: '5',
-    reviewCount: '1',
-    ratingCount: '1',
-    bestRating: '5',
-    worstRating: '1'
-  },
-  review: [
-    {
-      '@type': 'Review',
-      name: `Ocena redakcyjna: ${product.name}`,
-      reviewBody: `${product.name} to saszetki nikotynowe DRYMOST dla dorosłych użytkowników 18+, cenione za wyrazisty profil smakowy i wygodną, dyskretną formę.`,
-      author: {
-        '@type': 'Organization',
-        name: 'DRYMOST CYBER SNUS'
-      },
-      reviewRating: {
-        '@type': 'Rating',
-        ratingValue: '5',
-        bestRating: '5',
-        worstRating: '1'
-      }
-    }
-  ],
-  offers: {
-    '@type': 'Offer',
-    priceCurrency: 'EUR',
-    price: product.priceValue,
+  const itemListElements = productData.map((product, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
     url: product.url,
-    availability: 'https://schema.org/OutOfStock'
-  }
-}));
+    name: product.name
+  }));
 
-const faqPage = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  '@id': `${canonicalUrl}#faqpage`,
-  url: `${canonicalUrl}#faq`,
-  mainEntity: Array.from(document.querySelectorAll('.faq__item')).map((item) => ({
-    '@type': 'Question',
-    name: item.querySelector('.faq__question span').textContent.trim(),
-    acceptedAnswer: {
-      '@type': 'Answer',
-      text: item.querySelector('.faq__answer p').textContent.trim()
+  const collectionPage = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    '@id': `${canonicalUrl}#collection`,
+    url: canonicalUrl,
+    name: 'DRYMOST Snusy – Saszetki Nikotynowe',
+    description: 'Polska strona kolekcji DRYMOST z ofertą saszetek nikotynowych dla dorosłych 18+.',
+    inLanguage: 'pl-PL',
+    isPartOf: { '@id': `${canonicalUrl}#website` },
+    about: { '@id': `${canonicalUrl}#organization` },
+    mainEntity: { '@id': `${canonicalUrl}#itemlist` },
+    breadcrumb: { '@id': `${canonicalUrl}#breadcrumbs` }
+  };
+
+  const itemList = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    '@id': `${canonicalUrl}#itemlist`,
+    name: 'Produkty DRYMOST',
+    numberOfItems: productData.length,
+    itemListElement: itemListElements
+  };
+
+  const breadcrumbs = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    '@id': `${canonicalUrl}#breadcrumbs`,
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Start',
+        item: canonicalUrl
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Produkty DRYMOST',
+        item: `${canonicalUrl}#produkty`
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: 'FAQ',
+        item: `${canonicalUrl}#faq`
+      }
+    ]
+  };
+
+  const siteNavigation = navigationElements.map((item, index) => ({
+    '@context': 'https://schema.org',
+    '@type': 'SiteNavigationElement',
+    '@id': `${canonicalUrl}#navigation-${index + 1}`,
+    name: item.name,
+    url: item.url
+  }));
+
+  const products = productData.map((product) => ({
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    image: [absoluteUrl(product.image)],
+    url: product.url,
+    brand: {
+      '@type': 'Brand',
+      name: 'DRYMOST'
+    },
+    category: 'Saszetki nikotynowe',
+    description: `${product.name} to saszetki nikotynowe DRYMOST dla dorosłych użytkowników 18+. Smak: ${product.flavor}. Seria: ${product.series}.`,
+    additionalProperty: [
+      {
+        '@type': 'PropertyValue',
+        name: 'Smak',
+        value: product.flavor
+      },
+      {
+        '@type': 'PropertyValue',
+        name: 'Seria',
+        value: product.series
+      },
+      {
+        '@type': 'PropertyValue',
+        name: 'Moc',
+        value: product.strength
+      }
+    ],
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '5',
+      reviewCount: '1',
+      ratingCount: '1',
+      bestRating: '5',
+      worstRating: '1'
+    },
+    review: [
+      {
+        '@type': 'Review',
+        name: `Ocena redakcyjna: ${product.name}`,
+        reviewBody: `${product.name} to saszetki nikotynowe DRYMOST dla dorosłych użytkowników 18+, cenione za wyrazisty profil smakowy i wygodną, dyskretną formę.`,
+        author: {
+          '@type': 'Organization',
+          name: 'DRYMOST CYBER SNUS'
+        },
+        reviewRating: {
+          '@type': 'Rating',
+          ratingValue: '5',
+          bestRating: '5',
+          worstRating: '1'
+        }
+      }
+    ],
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'EUR',
+      price: product.priceValue,
+      url: product.url,
+      availability: 'https://schema.org/OutOfStock'
     }
-  }))
-};
+  }));
 
-[organization, website, webPage, collectionPage, breadcrumbs, ...siteNavigation, itemList, ...products, faqPage].forEach((schema) => {
-  const script = document.createElement('script');
-  script.type = 'application/ld+json';
-  script.textContent = JSON.stringify(schema);
-  document.head.appendChild(script);
-});
+  const faqPage = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    '@id': `${canonicalUrl}#faqpage`,
+    url: `${canonicalUrl}#faq`,
+    mainEntity: Array.from(document.querySelectorAll('.faq__item')).map((item) => ({
+      '@type': 'Question',
+      name: item.querySelector('.faq__question span').textContent.trim(),
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.querySelector('.faq__answer p').textContent.trim()
+      }
+    }))
+  };
+
+  [organization, website, webPage, collectionPage, breadcrumbs, ...siteNavigation, itemList, ...products, faqPage].forEach((schema) => {
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+  });
+}
+
+buildSchemas();
 
 function showAgeGate() {
   ageGate.hidden = false;
