@@ -98,8 +98,6 @@ faqItems.forEach((item, index) => {
   }
 });
 
-
-
 function showAgeGate() {
   ageGate.hidden = false;
   ageConfirm.focus();
